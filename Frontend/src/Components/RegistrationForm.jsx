@@ -1,142 +1,274 @@
 import React, { useState } from 'react';
-import HeaderRegistration from './headerRegister.jsx';
-import '../styles/RegistrationForm.css';
+import { Link, useNavigate } from 'react-router-dom';
+import FixedHeader from './FIxedHeader';
 import axios from 'axios';
 
 const RegistrationForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    password: '',
     phone: '',
-    nationality: '',
+    nationality: 'Ethiopian',
     passport: '',
-    dob: '',
-    gender: '',
-    country: '',
+    dob: '1995-01-01',
+    gender: 'Male',
+    country: 'Ethiopia',
     address: '',
-    zip: '',
-    city: '',
+    zip: '1000',
+    city: 'Addis Ababa',
     emergencyContact: '',
     emergencyPhone: '',
-    allergies: ''
+    allergies: 'None',
   });
+
+  const [feedback, setFeedback] = useState({ message: '', type: '' });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevData => ({
-      ...prevData,
-      [name]: value
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setFeedback({ message: '', type: '' });
+
     try {
-      const response = await axios.post('http://localhost:4000/api/register/registration', formData);
-      console.log(response.data);
+      const response = await axios.post('/api/register/registration', formData);
       if (response.status === 201) {
-        alert('Registration successful!');
+        setFeedback({
+          message: 'Registration successful! Your 10% traveler voucher is active. Redirecting to sign in...',
+          type: 'success',
+        });
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
       } else {
-        alert('Registration failed.');
+        setFeedback({ message: 'Registration failed. Please check your details.', type: 'error' });
       }
     } catch (error) {
-      console.error('Error:', error);
-      if (error.response) {
-        alert(`Sorry, registration failed. Server responded with: ${error.response.status} - ${error.response.data.message}`);
-      } else if (error.request) {
-        alert('Sorry, registration failed. No response from server.');
-      } else {
-        alert('Sorry, registration failed. Error setting up the request.');
-      }
+      console.error('Registration error:', error);
+      const msg = error.response?.data?.message || 'Registration failed. Please try again.';
+      setFeedback({ message: msg, type: 'error' });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <HeaderRegistration />
-      <div className='mainRegistrationBody'>
-        <h1>Welcome to the Registration Page</h1>
-        <div className="registration-form-container">
-          <form className="registration-form" onSubmit={handleSubmit}>
-            <h2>Tourist Registration Form</h2>
-            <div className="form-group">
-              <label htmlFor="fullName">Full Name</label>
-              <input type="text" id="fullName" name="fullName" value={formData.fullName} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="phone">Phone Number</label>
-              <input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="passport">Passport Number</label>
-              <input type="text" id="passport" name="passport" value={formData.passport} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="dob">Date of Birth</label>
-              <input type="date" id="dob" name="dob" value={formData.dob} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="nationality">Nationality</label>
-              <input type="text" id="nationality" name="nationality" value={formData.nationality} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="gender">Gender</label>
-              <select id="gender" name="gender" value={formData.gender} onChange={handleChange} required>
-                <option value="">Select</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="country">Country</label>
-              <input type="text" id="country" name="country" value={formData.country} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="address">Address</label>
-              <input type="text" id="address" name="address" value={formData.address} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="zip">ZIP Code</label>
-              <input type="text" id="zip" name="zip" value={formData.zip} onChange={handleChange} required />
-            </div> 
-            <div className="form-group">
-              <label htmlFor="city">City</label>
-              <input type="text" id="city" name="city" value={formData.city} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="emergencyContact">Emergency Contact Name</label>
-              <input type="text" id="emergencyContact" name="emergencyContact" value={formData.emergencyContact} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="emergencyPhone">Emergency Contact Phone</label>
-            < input type="tel" id="emergencyPhone" name="emergencyPhone" value={formData.emergencyPhone} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label htmlFor="password">password</label>
-          
-           <  input type="password"  placeholder='create your new password in wander ethio'  onChange={handleChange} required />
-            </div>
-            <div className="form-group">   
-            <  input type="password" id="password" placeholder='confirm your your password'  name="password" value={formData.password} onChange={handleChange} required />
-               
-               </div>
-       
-      
-            <div className="form-group">
+    <div className="min-h-screen bg-[#FAF9F6] text-stone-900 flex flex-col">
+      <FixedHeader />
 
-              <label htmlFor="allergies">Allergies (if any)</label>
-              <textarea id="allergies" name="allergies" value={formData.allergies} onChange={handleChange}></textarea>
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1">
+        <div className="bg-white rounded-3xl border border-stone-200 shadow-xl p-8 sm:p-12">
+          
+          <div className="max-w-2xl mb-8">
+            <div className="text-xs font-semibold text-amber-600 tracking-wider uppercase mb-1">
+              Traveler Enrollment
             </div>
-            <button className='registerBtn' type="submit">Register</button>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-stone-900 font-['Outfit']">
+              Register Traveler Profile
+            </h1>
+            <p className="text-xs sm:text-sm text-stone-600 mt-2 leading-relaxed">
+              Create an official traveler profile for national park permits, safety manifests, and receive an instant 10% voucher for your next journey.
+            </p>
+          </div>
+
+          {feedback.message && (
+            <div
+              className={`p-4 mb-6 rounded-xl text-xs flex items-center gap-2.5 ${
+                feedback.type === 'success'
+                  ? 'bg-emerald-50 border border-emerald-200 text-emerald-900'
+                  : 'bg-rose-50 border border-rose-200 text-rose-900'
+              }`}
+            >
+              <i
+                className={`fas ${
+                  feedback.type === 'success' ? 'fa-check-circle text-emerald-600' : 'fa-exclamation-circle text-rose-600'
+                }`}
+              ></i>
+              <span>{feedback.message}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            
+            {/* Section 1: Personal & Contact */}
+            <div>
+              <h3 className="text-xs font-bold text-stone-900 uppercase tracking-wider mb-4 pb-2 border-b border-stone-200">
+                1. Personal & Contact Credentials
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">Full Legal Name *</label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    required
+                    placeholder="e.g. Almaz Bekele"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-amber-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">Email Address *</label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    placeholder="almaz@example.com"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-amber-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">Account Password *</label>
+                  <input
+                    type="password"
+                    name="password"
+                    required
+                    placeholder="Create a secure password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-amber-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">Phone Number *</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    placeholder="+251 911 234 567"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-amber-600"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 2: Travel Details */}
+            <div>
+              <h3 className="text-xs font-bold text-stone-900 uppercase tracking-wider mb-4 pb-2 border-b border-stone-200">
+                2. Travel Document & Permitting Information
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">Nationality *</label>
+                  <input
+                    type="text"
+                    name="nationality"
+                    required
+                    placeholder="e.g. Ethiopian, Canadian"
+                    value={formData.nationality}
+                    onChange={handleChange}
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-amber-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">Passport / National ID *</label>
+                  <input
+                    type="text"
+                    name="passport"
+                    required
+                    placeholder="ID or Passport Number"
+                    value={formData.passport}
+                    onChange={handleChange}
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-amber-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">Date of Birth *</label>
+                  <input
+                    type="date"
+                    name="dob"
+                    required
+                    value={formData.dob}
+                    onChange={handleChange}
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-amber-600"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Section 3: Safety & Emergency */}
+            <div>
+              <h3 className="text-xs font-bold text-stone-900 uppercase tracking-wider mb-4 pb-2 border-b border-stone-200">
+                3. Safety & Emergency Contact
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">Emergency Contact Person</label>
+                  <input
+                    type="text"
+                    name="emergencyContact"
+                    placeholder="Contact Name"
+                    value={formData.emergencyContact}
+                    onChange={handleChange}
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-amber-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">Emergency Phone</label>
+                  <input
+                    type="tel"
+                    name="emergencyPhone"
+                    placeholder="+251 ..."
+                    value={formData.emergencyPhone}
+                    onChange={handleChange}
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-amber-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">Dietary / Alpine Medical Notes</label>
+                  <input
+                    type="text"
+                    name="allergies"
+                    placeholder="e.g. Vegetarian, None"
+                    value={formData.allergies}
+                    onChange={handleChange}
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none focus:border-amber-600"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-stone-200">
+              <p className="text-xs text-stone-500">
+                Already registered?{' '}
+                <Link to="/login" className="text-amber-600 font-bold hover:underline">
+                  Sign in to your account
+                </Link>
+              </p>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full sm:w-auto px-8 py-3 bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 whitespace-nowrap"
+              >
+                {loading ? 'Creating Profile...' : 'Complete Registration'}
+              </button>
+            </div>
           </form>
+
         </div>
-      </div>
-      <div className='tempofooter'></div>
+      </main>
     </div>
   );
 };

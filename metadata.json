@@ -1,0 +1,8 @@
+{
+  "name": "Wander Ethio",
+  "description": "Ethiopian tourism and travel exploration platform for destinations, cultural tours, and bookings.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

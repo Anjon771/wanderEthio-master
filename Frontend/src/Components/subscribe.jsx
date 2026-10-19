@@ -14,7 +14,7 @@ const NewsletterSignup = () => {
    
       const fetchSubscriberCount = async () => {
         try {
-          const response = await axios.get('http://localhost:4000/api/subscribers/count');
+          const response = await axios.get('/api/subscribers/count');
           setSubscriberCount(response.data.count);
         } catch (err) {
           console.error('Failed to fetch subscriber count', err);
@@ -30,11 +30,11 @@ const handleSubscribe = async (e) => {
   setLoading(true);
 
   try {
-    const response = await axios.post('http://localhost:4000/api/register/checker', { email });
+    const response = await axios.post('/api/register/checker', { email });
     console.log('Checker response:', response.data); // Log the response data to inspect
 
     if (response.data.registered) {
-      const subscribeResponse = await axios.post('http://localhost:4000/api/subscribers', { email });
+      const subscribeResponse = await axios.post('/api/subscribers', { email });
       console.log('Subscribe response:', subscribeResponse.data); 
 
       if (subscribeResponse.data.success) {
